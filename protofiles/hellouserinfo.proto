@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+service UserInfo {
+    rpc GetUserInfo (UserReq) returns (UserResp) {}
+}
+
+// The request message containing the user's name.
+message UserReq {
+    int64 id = 1;
+}
+
+// The response message containing the greetings
+message UserResp {
+    string id = 1;
+    string name = 2;
+    int32 gender = 3;
+    string address = 4;
+}
