@@ -6,8 +6,8 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+	"hellouserinfo/pkg/etcd"
 	pb "hellouserinfo/protofiles"
-	"hellouserinfo/serviceregister"
 	"io/ioutil"
 	"log"
 	"net"
@@ -100,10 +100,17 @@ func main() {
 		fmt.Println(err)
 	}
 	iport := ip.String() + ":" + strings.Split(port, ":")[1]
-	registerErr := serviceregister.RegisterToEtcd("hellouserinfo", "UserInfo", "hellouserinfo.proto", iport, string(f))
-	if registerErr != nil {
-		log.Fatalf("failed to serve: etcd(%v)", err)
+	//etcd服务注册
+	reg, err := etcd.NewService(etcd.ServiceInfo{
+		Name:    "hellouserinfo-UserInfo",
+		IP:      iport, //grpc服务节点ip
+		Content: string(f),
+		Proto:   "hellouserinfo.proto",
+	}, []string{etcd.GetIport()}) // etcd的节点ip
+	if err != nil {
+		log.Fatal(err)
 	}
+	go reg.Start()
 	reflection.Register(s)
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
