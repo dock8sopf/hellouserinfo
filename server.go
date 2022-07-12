@@ -11,10 +11,11 @@ import (
 	"io/ioutil"
 	"log"
 	"net"
+	"os"
 	"strings"
 )
 
-const (
+var (
 	port = "0.0.0.0:50052"
 )
 
@@ -85,6 +86,10 @@ func (s *server) GetUserInfo(ctx context.Context, in *pb.UserReq) (*pb.UserResp,
 }
 
 func main() {
+	argsWithProg := os.Args
+	if len(argsWithProg) > 1 {
+		port = "0.0.0.0:" + argsWithProg[1]
+	}
 	lis, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
